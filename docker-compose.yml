@@ -1,0 +1,31 @@
+version: "3.8"
+
+services:
+  postgres:
+    build:
+      # Build context is now the current directory (postgres-plugin)
+      context: .
+      dockerfile: Dockerfile
+      args:
+        PG_MAJOR: 15 # Ensure this matches the ARG in Dockerfile if changed
+    image: postgres-plugin-hessra:latest # Tag for the built image
+    container_name: postgres-hessra
+    environment:
+      # Set a password for the default postgres user
+      # Change this in production!
+      POSTGRES_PASSWORD: mysecretpassword
+      # Optional: Set database name, user, etc.
+      # POSTGRES_DB: mydatabase
+      # POSTGRES_USER: myuser
+    ports:
+      - "5432:5432" # Map host port 5432 to container port 5432
+    volumes:
+      # Mount local public key from the current directory (postgres-plugin)
+      # IMPORTANT: Ensure ./hessra_key.pem exists in postgres-plugin!
+      - ./hessra_key.pem:/etc/postgresql/hessra_key.pem:ro # Read-only mount
+      # Mount a volume for persistent data
+      - postgres_data:/var/lib/postgresql/data
+    restart: unless-stopped
+
+volumes:
+  postgres_data: # Define the named volume

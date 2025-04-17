@@ -1,0 +1,5 @@
+# postgres-plugin extension control file
+comment = 'Postgres extension for Hessra authorization using Rust FFI'
+default_version = '0.1.0'
+module_pathname = '$libdir/hessra_pg'
+relocatable = true 

@@ -1,0 +1,8 @@
+# Ignore build artifacts from the copied FFI crate
+hessra-sdk.rs/hessra-ffi/target
+hessra-sdk.rs/target
+
+# Ignore local git/vscode config
+.git
+.gitignore
+.vscode 

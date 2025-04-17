@@ -1,0 +1,15 @@
+[package]
+name = "hessra_ffi"
+version = "0.1.0"
+edition = "2021"
+build = "build.rs"
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+hessra-ffi = "0.2.0"
+
+[build-dependencies]
+cbindgen = "0.28"
+serde_json = "1.0"

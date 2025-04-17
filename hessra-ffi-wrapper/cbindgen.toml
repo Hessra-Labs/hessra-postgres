@@ -1,0 +1,39 @@
+# C compatability settings
+language = "C"
+cpp_compat = true
+include_guard = "HESSRA_FFI_H"
+include_version = true
+
+# Documentation generation
+documentation = true
+line_length = 80
+tab_width = 2
+
+# Items
+export_enums = true
+export_functions = true
+export_structs = true
+export_typedefs = true
+export_unions = true
+
+# Prepend this to every generated function, type, variable (if_needed)
+prefix = ""
+
+# Import settings
+include = ["hessra_ffi"]
+includes = []
+sys_includes = []
+after_includes = ""
+
+[export]
+# Ensure we include all items in hessra_ffi
+include = ["hessra_ffi::*"]
+item_types = ["functions", "constants", "enums", "structs", "typedefs", "unions"]
+renaming_overrides_prefixing = true
+
+[parser]
+# Parse dependencies for more accurate header generation
+parse_deps = true
+# Include relevant library paths
+include = ["hessra_ffi"]
+extra_bindings = ["hessra_ffi"] 

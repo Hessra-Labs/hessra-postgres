@@ -1,0 +1,44 @@
+version: "3.8"
+
+services:
+  postgres-test:
+    build:
+      context: ..
+      dockerfile: Dockerfile
+      args:
+        PG_MAJOR: 15
+    container_name: postgres-hessra-test
+    environment:
+      POSTGRES_PASSWORD: mysecretpassword
+    ports:
+      - "5433:5432"  # Use a different port to avoid conflicts
+    volumes:
+      - ../hessra_key.pem:/etc/postgresql/hessra_key.pem:ro
+      - ./setup_test_db.sql:/docker-entrypoint-initdb.d/setup_test_db.sql:ro
+      - postgres_test_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  test-runner:
+    build:
+      context: .
+      dockerfile: Dockerfile.test
+    container_name: hessra-test-runner
+    depends_on:
+      postgres-test:
+        condition: service_healthy
+    environment:
+      DB_HOST: postgres-test
+      DB_PORT: 5432
+      DB_NAME: hessra_test
+      DB_USER: postgres
+      DB_PASSWORD: mysecretpassword
+    volumes:
+      - .:/app
+      - ../hessra_key.pem:/app/hessra_key.pem:ro
+
+volumes:
+  postgres_test_data: 
