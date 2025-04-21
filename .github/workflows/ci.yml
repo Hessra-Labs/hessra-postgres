@@ -20,28 +20,21 @@ jobs:
 
       - name: Install Docker and Docker Compose
         run: |
-          # Uninstall old versions if any
-          sudo apt-get remove -y docker docker-engine docker.io containerd runc || true
+          # Install Docker (should already be available on GitHub runners)
+          docker --version || { echo "Docker not available, installing..."; 
+            sudo apt-get update
+            sudo apt-get install -y docker.io
+          }
 
-          # Update apt and install required packages
-          sudo apt-get update
-          sudo apt-get install -y ca-certificates curl gnupg
-
-          # Add Docker's official GPG key
-          sudo install -m 0755 -d /etc/apt/keyrings
-          curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
-          sudo chmod a+r /etc/apt/keyrings/docker.gpg
-
-          # Add Docker repository
-          echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu $(. /etc/os-release && echo $VERSION_CODENAME) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
-
-          # Install Docker Engine, CLI, and Compose plugin
-          sudo apt-get update
-          sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+          # Install Docker Compose standalone version (not the plugin)
+          # This matches the 'docker-compose' command expected by the test script
+          DOCKER_COMPOSE_VERSION=v2.24.5
+          sudo curl -L "https://github.com/docker/compose/releases/download/${DOCKER_COMPOSE_VERSION}/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+          sudo chmod +x /usr/local/bin/docker-compose
 
           # Verify installations
           docker --version
-          docker compose version || { echo "Docker Compose installation failed"; exit 1; }
+          docker-compose --version || { echo "Docker Compose installation failed"; exit 1; }
 
       - name: Build PostgreSQL extension
         run: |
@@ -51,6 +44,9 @@ jobs:
       - name: Run tests
         run: |
           cd test
+
+          # Verify docker-compose is available in this step
+          docker-compose --version
 
           # Run the test script
           bash run_tests.sh
@@ -110,34 +106,20 @@ jobs:
 
       - name: Install Docker and Docker Compose
         run: |
-          # Uninstall old versions if any
-          sudo apt-get remove -y docker docker-engine docker.io containerd runc || true
+          # Install Docker (should already be available on GitHub runners)
+          docker --version || { echo "Docker not available, installing..."; 
+            sudo apt-get update
+            sudo apt-get install -y docker.io
+          }
 
-          # Update apt and install required packages
-          sudo apt-get update
-          sudo apt-get install -y ca-certificates curl gnupg
+          # Install Docker Compose standalone version (not the plugin)
+          DOCKER_COMPOSE_VERSION=v2.24.5
+          sudo curl -L "https://github.com/docker/compose/releases/download/${DOCKER_COMPOSE_VERSION}/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+          sudo chmod +x /usr/local/bin/docker-compose
 
-          # Add Docker's official GPG key
-          sudo install -m 0755 -d /etc/apt/keyrings
-          curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
-          sudo chmod a+r /etc/apt/keyrings/docker.gpg
-
-          # Add Docker repository
-          echo "deb [arch="$(dpkg --print-architecture)" signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu "$(. /etc/os-release && echo "$VERSION_CODENAME")" stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
-
-          # Install Docker Engine, CLI, and Compose plugin
-          sudo apt-get update
-          sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
-
-          # Verify installation
-          docker version
-          docker compose version
-
-      - name: Create required key file
-        run: |
-          if [ ! -f "hessra_key.pem" ]; then
-            openssl genrsa -out hessra_key.pem 2048
-          fi
+          # Verify installations
+          docker --version
+          docker-compose --version || { echo "Docker Compose installation failed"; exit 1; }
 
       - name: Test with PostgreSQL ${{ matrix.postgres-version }}
         run: |
