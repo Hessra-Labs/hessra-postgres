@@ -2,6 +2,8 @@
 
 A PostgreSQL extension that integrates with the Hessra token-based authorization system, providing token verification directly in the database.
 
+https://www.hessra.net/ | hello@hessra.net
+
 ## Features
 
 - Token verification as a PostgreSQL function
