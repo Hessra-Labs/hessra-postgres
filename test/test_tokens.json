@@ -2,52 +2,57 @@
   "tokens": [
     {
       "name": "argo-cli0_access_resource1",
-      "token": "Ev4BCooBChZ1cmk6dXJuOnRlc3Q6YXJnby1jbGkwCglyZXNvdXJjZTEKB3N1YmplY3QYAyISChAIBBIDGIAIEgMYgQgSAhgAIhIKEAgEEgMYgAgSAxiBCBICGAEiCgoICIIIEgMYgAgyJgokCgIIGxIGCAUSAggFGhYKBAoCCAUKCAoGEN/65Z8SCgQaAggAEiQIABIgJ5uzjVFEesp2xPUzsb6PKYaoM398B/AdxIX8+yj/W3caRzBFAiEAncGYNT4iSnWxnAbdGQEkOKHHc7gxwXOhK9ceTktU2U4CIF+6SuLcJZmbKv3PnTMZOOe+4iGTT9uyaa3/h60Rx3JqKAEiIgogWwC7DoLdtoHjXKcEk1Tvidx51vqTixnCsoGJ0oCiS7Y=",
+      "token": "EugBCnUKFnVyaTp1cm46dGVzdDphcmdvLWNsaTAKCXJlc291cmNlMRgDIhIKEAgEEgMYgAgSAxiBCBICGAAiEgoQCAQSAxiACBIDGIEIEgIYATImCiQKAggbEgYIBRICCAUaFgoECgIIBQoICgYQur3mnxIKBBoCCAASJAgAEiDZV/8/1NUIn8vCODfJ0d9BCjO6hRo/2LDh0A0YkzE10hpHMEUCIQCdkWDtjZqYjW9rELtDwT7atnLp4oaywNMKIo5Ws1xigAIgONiLoF9DsiGecTrBashpNTjfPxwrupsXt1tNr30qID4oASIiCiDIsSnY/vgk9GinD1/MXtouNJKX1fMZ0o4fNj1HwcLdtQ==",
       "metadata": {
         "subject": "uri:urn:test:argo-cli1",
         "resource": "resource1",
+        "type": "singleton",
         "description": "Invalid token for argo-cli1 to access resource1. This token was created for a different subject (argo-cli0).",
         "expected_result": false
       }
     },
     {
       "name": "argo-cli1_access_resource2",
-      "token": "Ev4BCooBChZ1cmk6dXJuOnRlc3Q6YXJnby1jbGkxCglyZXNvdXJjZTIKB3N1YmplY3QYAyISChAIBBIDGIAIEgMYgQgSAhgAIhIKEAgEEgMYgAgSAxiBCBICGAEiCgoICIIIEgMYgAgyJgokCgIIGxIGCAUSAggFGhYKBAoCCAUKCAoGEJHy5Z8SCgQaAggAEiQIABIg5v4i6fEDlVByqSDcqpuo17pGrlt6KuGDiC+LCp5sTaoaRzBFAiBoPEIuy/VNeh9iLHiuB3v217/Jp/9A3JUHv0jjsjzPwgIhAI1sMoq6q/wzizVuZ1TLWMXvvT6AkPExTnBwzzxMuTXqKAEiIgogPBihP93tUj5jOTX7zTPOjAhFfJUPuvgVGOCADttUyZk=",
+      "token": "EugBCnUKFnVyaTp1cm46dGVzdDphcmdvLWNsaTEKCXJlc291cmNlMhgDIhIKEAgEEgMYgAgSAxiBCBICGAAiEgoQCAQSAxiACBIDGIEIEgIYATImCiQKAggbEgYIBRICCAUaFgoECgIIBQoICgYQ9LvmnxIKBBoCCAASJAgAEiBTctyBklvhJqeZY+n8mFIvY0FylGsrJ5hCLN19naK8cBpHMEUCID2yZiGYW4OElIuvcxi33Hf2b6myZp7H0JpF7Mwocb9MAiEAuJn1dHynd73JZmMmIJOJHZofP359PduxpteUizibcK0oASIiCiDCy7LdAdolnfR7/x0LdxrzNB5B22Gu7Gx2EncgNhBX5Q==",
       "metadata": {
         "subject": "uri:urn:test:argo-cli1",
         "resource": "resource2",
+        "type": "singleton",
         "description": "Valid token for argo-cli1 to access resource2",
         "expected_result": true
       }
     },
     {
       "name": "argo-cli1_access_resource3",
-      "token": "Ev8BCooBChZ1cmk6dXJuOnRlc3Q6YXJnby1jbGkxCglyZXNvdXJjZTMKB3N1YmplY3QYAyISChAIBBIDGIAIEgMYgQgSAhgAIhIKEAgEEgMYgAgSAxiBCBICGAEiCgoICIIIEgMYgAgyJgokCgIIGxIGCAUSAggFGhYKBAoCCAUKCAoGEJTy5Z8SCgQaAggAEiQIABIgk6ppjmLNvfPzQZAGbQ2CzwWiYM13b5MsVu1+DrKelgcaSDBGAiEAhpvM7KQ/AEu3zVR0yqKJ4RAg4L5bjsxSMRLBTAsahu8CIQDK/wqrolebouW94wpmxU/6zyFRYFUT/9iL/z2uIL5RCCgBIiIKIFKPRpjKFRjnfLKyanLA5mtDPPyLmCJd6HDkK42ZJS6l",
+      "token": "EugBCnUKFnVyaTp1cm46dGVzdDphcmdvLWNsaTEKCXJlc291cmNlMxgDIhIKEAgEEgMYgAgSAxiBCBICGAAiEgoQCAQSAxiACBIDGIEIEgIYATImCiQKAggbEgYIBRICCAUaFgoECgIIBQoICgYQlrzmnxIKBBoCCAASJAgAEiA2fMYjgM2Q7TvGyhKnnkEUSoVyDjDMhViJq5B8BYgBbRpHMEUCIQCW5NaF1kRnjIqgaZYxvlPBxYxi193IaPV0PzNWvbX3KwIgDuKH4or+njpygYOckSp6iAN7u15iJxpDBtE55xHJVBYoASIiCiB0KvTpKzWHn6/tY7eBScxs7yFzLH2N0/15BVbhetbpFQ==",
       "metadata": {
         "subject": "uri:urn:test:argo-cli1",
         "resource": "resource3",
+        "type": "singleton",
         "description": "Valid token for argo-cli1 to access resource3",
         "expected_result": true
       }
     },
     {
       "name": "argo-cli1_access_resource4",
-      "token": "EtQCCt8BChZ1cmk6dXJuOnRlc3Q6YXJnby1jbGkxCglyZXNvdXJjZTQKB3N1YmplY3QKAXMKDWVkZ2VfZnVuY3Rpb24YBCISChAIBBIDGIAIEgMYgQgSAhgAIhIKEAgEEgMYgAgSAxiBCBICGAEiCgoICIIIEgMYgAgqGwoMCBgSAwiDCBIDGIQIEgcIDBIDCIMIIgIQADImCiQKAggbEgYIBRICCAUaFgoECgIIBQoICgYQlvLlnxIKBBoCCABCJAgAEiCcPo8Q4Oju7x2whpFaFaWQ59g4aDhBcZtecN2rIRW4JhIkCAASILxZ8ECcbUhMoqiIJG6uNWkWHzY+ReQXO+yYJushAuTFGkgwRgIhAM2i1A+49Yy6F3Whr+thl3r/aemilY4pA7zb+Jkh6DaFAiEAxceWF5V+HNpp0NyDPh0Wnrz0wbXGGRU8jIgir/oKUbAoASIiCiDebI6CRX5Wt3X1DkITOEuHFeVRZX2tHATTdFTFWXtntw==",
+      "token": "Er4CCsoBChZ1cmk6dXJuOnRlc3Q6YXJnby1jbGkxCglyZXNvdXJjZTQKAXMKDWVkZ2VfZnVuY3Rpb24YBCISChAIBBIDGIAIEgMYgQgSAhgAIhIKEAgEEgMYgAgSAxiBCBICGAEqGwoMCBgSAwiCCBIDGIMIEgcIDBIDCIIIIgIQADImCiQKAggbEgYIBRICCAUaFgoECgIIBQoICgYQpbzmnxIKBBoCCABCJAgAEiCcPo8Q4Oju7x2whpFaFaWQ59g4aDhBcZtecN2rIRW4JhIkCAASIE27XXd3Sye+rF8S7aJWCNEgPyPNY0cM977kTRfZdQleGkcwRQIhAOFQhly77wobr4AyCrjBx0uIsshB+NJ1Qxx1lOCRFU4lAiAWAMHZWzMLELxbHmosv1gCj73Xo4jWjMue+eqMeTgAWSgBIiIKIDlcJqY3w0GGfHnIpqdbcJywALgzsKXsrOG7p1nnTrlZ",
       "metadata": {
         "subject": "uri:urn:test:argo-cli1",
         "resource": "resource4",
-        "description": "Valid token for argo-cli1 to access resource4",
+        "type": "singleton",
+        "description": "Valid token for argo-cli1 to access resource4. This is a service chain token but we are acting as the first node in the chain.",
         "expected_result": true
       }
     },
     {
       "name": "argo-cli1_access_order_service",
-      "token": "Eu0DCvkCChZ1cmk6dXJuOnRlc3Q6YXJnby1jbGkxCg1vcmRlcl9zZXJ2aWNlCgdzdWJqZWN0CgFzCgxhdXRoX3NlcnZpY2UKD3BheW1lbnRfc2VydmljZRgEIhIKEAgEEgMYgAgSAxiBCBICGAAiEgoQCAQSAxiACBIDGIEIEgIYASIKCggIgggSAxiACCobCgwIGBIDCIMIEgMYhAgSBwgMEgMIgwgiAhAAKhsKDAgYEgMIgwgSAxiFCBIHCAwSAwiDCCICEAEqGwoMCBgSAwiDCBIDGIEIEgcIDBIDCIMIIgIQAjImCiQKAggbEgYIBRICCAUaFgoECgIIBQoICgYQofLlnxIKBBoCCABCJAgAEiDldhgFix0uA4GpgTwUBYMNXtfWA3FzhO9VXZzAz6Zdg0IkCAASIHjvQlXEyatccYbW20dgdYsGYWwEKiU4MjrjsFgJQDS2QiQIABIgGuvFpu78VpBRkmpqr1VWjlPttHXy8uuQRSJgk5HYgRMSJAgAEiAhWAnKeKQrdw9RdpdkLKWHNqfTRdbZzTihEZDhvE8WKxpHMEUCIQCVWzGxnS7oDms0igSVAWliY10ZjAQZenquoi0Nn/6t3gIgOU9bz9D5yyhEMJNTYYOyZrc1rUYZlZ1WPTQQYN3e9cQoASIiCiCg3pV6BOI1w4Or9QJKxnIXGVuOYQwfZEwTXe2VSxYBNw==",
+      "token": "EtgDCuQCChZ1cmk6dXJuOnRlc3Q6YXJnby1jbGkxCg1vcmRlcl9zZXJ2aWNlCgFzCgxhdXRoX3NlcnZpY2UKD3BheW1lbnRfc2VydmljZRgEIhIKEAgEEgMYgAgSAxiBCBICGAAiEgoQCAQSAxiACBIDGIEIEgIYASobCgwIGBIDCIIIEgMYgwgSBwgMEgMIgggiAhAAKhsKDAgYEgMIgggSAxiECBIHCAwSAwiCCCICEAEqGwoMCBgSAwiCCBIDGIEIEgcIDBIDCIIIIgIQAjImCiQKAggbEgYIBRICCAUaFgoECgIIBQoICgYQmL3mnxIKBBoCCABCJAgAEiDldhgFix0uA4GpgTwUBYMNXtfWA3FzhO9VXZzAz6Zdg0IkCAASIHjvQlXEyatccYbW20dgdYsGYWwEKiU4MjrjsFgJQDS2QiQIABIgGuvFpu78VpBRkmpqr1VWjlPttHXy8uuQRSJgk5HYgRMSJAgAEiD6t7nHUSOWlNwhFPMv1vDwVfU/RuKRzJwJqDY3f1mt1hpHMEUCIQCNSLSn9gT/ganxv/zAyPZSpwxFlrSEF92atdn5gJZTHQIgBydvkFrWrR3Yck+dFX7XBS3gHb7NLxBuk+B3G/CZeHcoASIiCiBYXl/bnUHVmA5j+NoWJ5bhwanmqTbQjR9/THASG8XthQ==",
       "metadata": {
         "subject": "uri:urn:test:argo-cli1",
         "resource": "order_service",
-        "description": "Invalid token for argo-cli1 to access order-service. This token requires 3rd party service chain blocks that haven't been added.",
-        "expected_result": false
+        "type": "singleton",
+        "description": "Initial service chain token valid as a singleton at the first node of the chain.",
+        "expected_result": true
       }
     }
   ]
