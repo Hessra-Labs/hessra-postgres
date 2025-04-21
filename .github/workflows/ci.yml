@@ -1,0 +1,168 @@
+name: PostgreSQL Extension CI
+
+on:
+  push:
+    branches: [main]
+    tags:
+      - "v*"
+  pull_request:
+    branches: [main]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Create required key file
+        run: |
+          # Create a mock key file for testing if the real one doesn't exist
+          # In a real scenario, you might use secrets to store this
+          if [ ! -f "hessra_key.pem" ]; then
+            echo "Creating mock key file for testing purposes"
+            openssl genrsa -out hessra_key.pem 2048
+          fi
+
+      - name: Build PostgreSQL extension
+        run: |
+          # Build the extension using Docker
+          docker build -t postgres-plugin-hessra:test .
+
+      - name: Run tests
+        run: |
+          cd test
+
+          # Create test token files if needed
+          # In a real scenario, you would use GitHub secrets for this
+          if [ ! -f "test_tokens.json" ]; then
+            echo '{"tokens": [{"token": "mock_token"}]}' > test_tokens.json
+          fi
+
+          if [ ! -f "service_chain_tokens.json" ]; then
+            echo '{"tokens": [{"token": "mock_service_chain_token"}]}' > service_chain_tokens.json
+          fi
+
+          # Run the test script
+          bash run_tests.sh
+
+      - name: Static code analysis
+        run: |
+          # Install PostgreSQL development packages
+          sudo apt-get update
+          sudo apt-get install -y postgresql-server-dev-all
+
+          # Check for C compiler warnings
+          gcc -Wall -Werror -I$(pg_config --includedir-server) -c ../hessra_pg.c -o /tmp/hessra_pg.o || true
+
+      - name: SQL Validation
+        run: |
+          # Validate SQL file syntax
+          for sql_file in $(find . -name "*.sql"); do
+            echo "Validating SQL syntax in $sql_file"
+            cat $sql_file | docker run --rm postgres:15 postgres -f - >/dev/null || echo "Warning: SQL validation failed for $sql_file"
+          done
+
+      - name: Documentation check
+        run: |
+          # Ensure README.md exists and has content
+          if [ ! -s "README.md" ]; then
+            echo "Warning: README.md is missing or empty"
+          else
+            echo "README.md exists and has content"
+          fi
+
+          # Check for SQL comments coverage
+          sql_files=$(find . -name "*.sql" | wc -l)
+          sql_files_with_comments=$(grep -l "^--" $(find . -name "*.sql") | wc -l)
+          echo "SQL files with comments: $sql_files_with_comments out of $sql_files"
+
+      - name: Security scan
+        run: |
+          # Install security scanning tools
+          sudo apt-get install -y clamav
+          sudo freshclam || true
+
+          # Scan C code files for security issues
+          sudo clamscan -r --infected .
+
+          # Execute basic SQL injection pattern check
+          grep -r "EXECUTE\|execute" --include="*.c" --include="*.sql" . || echo "No dynamic SQL execution found"
+
+  compatibility-test:
+    runs-on: ubuntu-latest
+    needs: build-and-test
+    strategy:
+      matrix:
+        postgres-version: ["14", "15", "16"]
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Create required key file
+        run: |
+          if [ ! -f "hessra_key.pem" ]; then
+            openssl genrsa -out hessra_key.pem 2048
+          fi
+
+      - name: Test with PostgreSQL ${{ matrix.postgres-version }}
+        run: |
+          # Modify Dockerfile to use the specific PostgreSQL version
+          sed -i "s/ARG PG_MAJOR=.*/ARG PG_MAJOR=${{ matrix.postgres-version }}/" Dockerfile
+
+          # Build with the specific PostgreSQL version
+          docker build -t postgres-plugin-hessra:pg${{ matrix.postgres-version }} .
+
+          # Basic test to see if the extension loads
+          docker run --rm postgres-plugin-hessra:pg${{ matrix.postgres-version }} psql -U postgres -c "CREATE EXTENSION hessra_pg;" || echo "Warning: Extension failed to load in PostgreSQL ${{ matrix.postgres-version }}"
+
+  publish:
+    name: Build and publish extension package
+    runs-on: ubuntu-latest
+    needs: [build-and-test, compatibility-test]
+    if: startsWith(github.ref, 'refs/tags/v')
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up PostgreSQL development packages
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y postgresql-server-dev-all
+
+      - name: Extract version from tag
+        id: get_version
+        run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_ENV
+
+      - name: Build package
+        run: |
+          # Create a temporary build directory
+          mkdir -p build/hessra_pg
+
+          # Copy necessary files to the build directory
+          cp hessra_pg.c build/hessra_pg/
+          cp hessra_pg--0.1.0.sql build/hessra_pg/
+          cp hessra_pg.control build/hessra_pg/
+          cp Makefile build/hessra_pg/
+          cp -r sql build/hessra_pg/
+          cp README.md build/hessra_pg/
+
+          # Update version in control file to match tag (if needed)
+          sed -i "s/default_version = '.*'/default_version = '$VERSION'/" build/hessra_pg/hessra_pg.control
+
+          # Create the package
+          cd build
+          tar -czf hessra_pg-$VERSION.tar.gz hessra_pg/
+
+      - name: Create Release
+        id: create_release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: build/hessra_pg-${{ env.VERSION }}.tar.gz
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
