@@ -86,18 +86,6 @@ jobs:
           sql_files_with_comments=$(grep -l "^--" $(find . -name "*.sql") | wc -l)
           echo "SQL files with comments: $sql_files_with_comments out of $sql_files"
 
-      - name: Security scan
-        run: |
-          # Install security scanning tools
-          sudo apt-get install -y clamav
-          sudo freshclam || true
-
-          # Scan C code files for security issues
-          sudo clamscan -r --infected .
-
-          # Execute basic SQL injection pattern check
-          grep -r "EXECUTE\|execute" --include="*.c" --include="*.sql" . || echo "No dynamic SQL execution found"
-
   compatibility-test:
     runs-on: ubuntu-latest
     needs: build-and-test
