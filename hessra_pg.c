@@ -25,6 +25,7 @@ PG_MODULE_MAGIC;
 // --- Function Prototypes ---
 
 PG_FUNCTION_INFO_V1(pg_verify_hessra_token);
+PG_FUNCTION_INFO_V1(pg_verify_hessra_service_chain);
 
 // --- Function Definitions ---
 
@@ -103,6 +104,103 @@ pg_verify_hessra_token(PG_FUNCTION_ARGS)
     pfree(token_cstr);
     pfree(subject_cstr);
     pfree(resource_cstr);
+
+    // 5. Return the boolean result
+    PG_RETURN_BOOL(is_valid);
+}
+
+/**
+ * SQL-callable function to verify a Hessra service chain token.
+ *
+ * Args:
+ *   PG_GETARG_TEXT_PP(0): The Hessra token string.
+ *   PG_GETARG_TEXT_PP(1): The required subject string.
+ *   PG_GETARG_TEXT_PP(2): The required resource string.
+ *   PG_GETARG_TEXT_PP(3): JSON array of service node objects with component and public_key fields.
+ *   PG_GETARG_TEXT_PP(4): The component name to check in the service chain.
+ *
+ * Returns:
+ *   Boolean indicating if the token is valid and grants the permission for the service chain.
+ */
+Datum
+pg_verify_hessra_service_chain(PG_FUNCTION_ARGS)
+{
+    text *token_text = PG_GETARG_TEXT_PP(0);
+    text *subject_text = PG_GETARG_TEXT_PP(1);
+    text *resource_text = PG_GETARG_TEXT_PP(2);
+    text *service_nodes_json_text = PG_GETARG_TEXT_PP(3);
+    text *component_text = PG_GETARG_TEXT_PP(4);
+
+    char *token_cstr = text_to_cstring(token_text);
+    char *subject_cstr = text_to_cstring(subject_text);
+    char *resource_cstr = text_to_cstring(resource_text);
+    char *service_nodes_json_cstr = text_to_cstring(service_nodes_json_text);
+    char *component_cstr = text_to_cstring(component_text);
+
+    HessraPublicKey *public_key = NULL;
+    HessraResult key_load_result;
+    HessraResult verify_result;
+    bool is_valid = false;
+
+    // 1. Load the public key from the fixed path
+    char *key_path_cstr = HESSRA_PUBLIC_KEY_PATH;
+    key_load_result = hessra_public_key_from_file(key_path_cstr, &public_key);
+
+    if (key_load_result != SUCCESS || public_key == NULL) {
+        char *err_msg = hessra_error_message(key_load_result);
+        char *safe_err_msg = (err_msg != NULL) ? err_msg : "Unknown key loading error";
+        ereport(ERROR,
+                (errcode(ERRCODE_EXTERNAL_ROUTINE_INVOCATION_EXCEPTION),
+                 errmsg("Failed to load Hessra public key from %s: %s", key_path_cstr, safe_err_msg)));
+        if (err_msg != NULL) {
+            hessra_string_free(err_msg);
+        }
+        // Cleanup arguments even on error before returning
+        pfree(token_cstr);
+        pfree(subject_cstr);
+        pfree(resource_cstr);
+        pfree(service_nodes_json_cstr);
+        pfree(component_cstr);
+        PG_RETURN_BOOL(false);
+    }
+
+    // 2. Call the Rust FFI service chain verification function
+    verify_result = hessra_token_verify_service_chain(
+        token_cstr,
+        public_key,
+        subject_cstr,
+        resource_cstr,
+        service_nodes_json_cstr,
+        component_cstr
+    );
+
+    // 3. Process the result
+    if (verify_result == SUCCESS) {
+        is_valid = true;
+    } else {
+        is_valid = false;
+        // Log specific verification failures for debugging
+        char *err_msg = hessra_error_message(verify_result);
+        char *safe_err_msg = (err_msg != NULL) ? err_msg : "Unknown verification error";
+
+        // Only log at DEBUG level in production; can use NOTICE during development
+        ereport(DEBUG1,
+                (errmsg("Hessra service chain verification failed: %s", safe_err_msg)));
+
+        if (err_msg != NULL) {
+            hessra_string_free(err_msg);
+        }
+    }
+
+    // 4. Clean up allocated resources
+    if (public_key != NULL) {
+        hessra_public_key_free(public_key);
+    }
+    pfree(token_cstr);
+    pfree(subject_cstr);
+    pfree(resource_cstr);
+    pfree(service_nodes_json_cstr);
+    pfree(component_cstr);
 
     // 5. Return the boolean result
     PG_RETURN_BOOL(is_valid);

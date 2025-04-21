@@ -11,10 +11,11 @@ services:
     environment:
       POSTGRES_PASSWORD: mysecretpassword
     ports:
-      - "5433:5432"  # Use a different port to avoid conflicts
+      - "5433:5432" # Use a different port to avoid conflicts
     volumes:
       - ../hessra_key.pem:/etc/postgresql/hessra_key.pem:ro
-      - ./setup_test_db.sql:/docker-entrypoint-initdb.d/setup_test_db.sql:ro
+      - ./setup_test_db.sql:/docker-entrypoint-initdb.d/1-setup_test_db.sql:ro
+      - ./setup_service_chain_test.sql:/docker-entrypoint-initdb.d/2-setup_service_chain_test.sql:ro
       - postgres_test_data:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres"]
@@ -41,4 +42,4 @@ services:
       - ../hessra_key.pem:/app/hessra_key.pem:ro
 
 volumes:
-  postgres_test_data: 
+  postgres_test_data:
