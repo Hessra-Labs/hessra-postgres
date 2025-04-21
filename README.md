@@ -68,4 +68,4 @@ This tests both basic token verification and service chain token verification.
 
 ## License
 
-This extension is licensed under [LICENSE INFO].
+This extension is licensed under Apache-2.0
