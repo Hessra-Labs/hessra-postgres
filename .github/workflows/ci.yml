@@ -33,24 +33,15 @@ jobs:
           sudo chmod a+r /etc/apt/keyrings/docker.gpg
 
           # Add Docker repository
-          echo "deb [arch="$(dpkg --print-architecture)" signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu "$(. /etc/os-release && echo "$VERSION_CODENAME")" stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+          echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu $(. /etc/os-release && echo $VERSION_CODENAME) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
 
           # Install Docker Engine, CLI, and Compose plugin
           sudo apt-get update
           sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
 
-          # Verify installation
-          docker version
-          docker compose version
-
-      - name: Create required key file
-        run: |
-          # Create a mock key file for testing if the real one doesn't exist
-          # In a real scenario, you might use secrets to store this
-          if [ ! -f "hessra_key.pem" ]; then
-            echo "Creating mock key file for testing purposes"
-            openssl genrsa -out hessra_key.pem 2048
-          fi
+          # Verify installations
+          docker --version
+          docker compose version || { echo "Docker Compose installation failed"; exit 1; }
 
       - name: Build PostgreSQL extension
         run: |
@@ -60,16 +51,6 @@ jobs:
       - name: Run tests
         run: |
           cd test
-
-          # Create test token files if needed
-          # In a real scenario, you would use GitHub secrets for this
-          if [ ! -f "test_tokens.json" ]; then
-            echo '{"tokens": [{"token": "mock_token"}]}' > test_tokens.json
-          fi
-
-          if [ ! -f "service_chain_tokens.json" ]; then
-            echo '{"tokens": [{"token": "mock_service_chain_token"}]}' > service_chain_tokens.json
-          fi
 
           # Run the test script
           bash run_tests.sh
