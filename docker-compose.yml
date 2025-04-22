@@ -20,9 +20,9 @@ services:
     ports:
       - "5432:5432" # Map host port 5432 to container port 5432
     volumes:
-      # Mount local public key from the current directory (postgres-plugin)
-      # IMPORTANT: Ensure ./hessra_key.pem exists in postgres-plugin!
-      - ./hessra_key.pem:/etc/postgresql/hessra_key.pem:ro # Read-only mount
+      # Mount local public key from the test directory
+      # IMPORTANT: Ensure test/hessra_key.pem exists!
+      - ./test/hessra_key.pem:/etc/postgresql/hessra_key.pem:ro # Read-only mount
       # Mount a volume for persistent data
       - postgres_data:/var/lib/postgresql/data
     restart: unless-stopped

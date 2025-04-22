@@ -13,7 +13,7 @@ services:
     ports:
       - "5433:5432" # Use a different port to avoid conflicts
     volumes:
-      - ../hessra_key.pem:/etc/postgresql/hessra_key.pem:ro
+      - ./hessra_key.pem:/etc/postgresql/hessra_key.pem:ro
       - ./setup_test_db.sql:/docker-entrypoint-initdb.d/1-setup_test_db.sql:ro
       - ./setup_service_chain_test.sql:/docker-entrypoint-initdb.d/2-setup_service_chain_test.sql:ro
       - ./smoke_test.sql:/app/smoke_test.sql:ro
@@ -43,7 +43,7 @@ services:
       DB_PASSWORD: mysecretpassword
     volumes:
       - .:/app
-      - ../hessra_key.pem:/app/hessra_key.pem:ro
+      - ./hessra_key.pem:/app/hessra_key.pem:ro
 
 volumes:
   postgres_test_data:
