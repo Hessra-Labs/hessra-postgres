@@ -62,7 +62,7 @@ jobs:
           sudo apt-get install -y postgresql-server-dev-15
 
           # Check for C compiler warnings
-          gcc -Wall -Werror -I$(pg_config --includedir-server) -c hessra_pg.c -o /tmp/hessra_pg.o || true
+          gcc -Wall -Werror -I$(pg_config --includedir-server) -c hessra_authz.c -o /tmp/hessra_authz.o || true
 
       - name: SQL Validation
         run: |
@@ -122,7 +122,7 @@ jobs:
           docker build -t postgres-plugin-hessra:pg${{ matrix.postgres-version }} .
 
           # Basic test to see if the extension loads
-          docker run --rm postgres-plugin-hessra:pg${{ matrix.postgres-version }} psql -U postgres -c "CREATE EXTENSION hessra_pg;" || echo "Warning: Extension failed to load in PostgreSQL ${{ matrix.postgres-version }}"
+          docker run --rm postgres-plugin-hessra:pg${{ matrix.postgres-version }} psql -U postgres -c "CREATE EXTENSION hessra_authz;" || echo "Warning: Extension failed to load in PostgreSQL ${{ matrix.postgres-version }}"
 
   publish:
     name: Build and publish extension package
@@ -145,28 +145,28 @@ jobs:
       - name: Build package
         run: |
           # Create a temporary build directory
-          mkdir -p build/hessra_pg
+          mkdir -p build/hessra_authz
 
           # Copy necessary files to the build directory
-          cp hessra_pg.c build/hessra_pg/
-          cp hessra_pg--0.1.0.sql build/hessra_pg/
-          cp hessra_pg.control build/hessra_pg/
-          cp Makefile build/hessra_pg/
-          cp -r sql build/hessra_pg/
-          cp README.md build/hessra_pg/
+          cp hessra_authz.c build/hessra_authz/
+          cp hessra_authz--0.1.0.sql build/hessra_authz/
+          cp hessra_authz.control build/hessra_authz/
+          cp Makefile build/hessra_authz/
+          cp -r sql build/hessra_authz/
+          cp README.md build/hessra_authz/
 
           # Update version in control file to match tag (if needed)
-          sed -i "s/default_version = '.*'/default_version = '$VERSION'/" build/hessra_pg/hessra_pg.control
+          sed -i "s/default_version = '.*'/default_version = '$VERSION'/" build/hessra_authz/hessra_authz.control
 
           # Create the package
           cd build
-          tar -czf hessra_pg-$VERSION.tar.gz hessra_pg/
+          tar -czf hessra_authz-$VERSION.tar.gz hessra_authz/
 
       - name: Create Release
         id: create_release
         uses: softprops/action-gh-release@v1
         with:
-          files: build/hessra_pg-${{ env.VERSION }}.tar.gz
+          files: build/hessra_authz-${{ env.VERSION }}.tar.gz
           draft: false
           prerelease: false
         env:

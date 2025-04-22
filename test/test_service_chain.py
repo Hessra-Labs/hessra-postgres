@@ -8,6 +8,7 @@ import psycopg2
 import pytest
 from typing import Dict, List, Any
 from dataclasses import dataclass
+import sys
 
 # Configuration
 DB_HOST = os.environ.get("DB_HOST", "localhost")
@@ -67,13 +68,12 @@ def test_service_chain_verification():
         # First, check if the extension and service chain verification function are working
         with conn.cursor() as cur:
             try:
-                # Check that the extension is properly installed
-                cur.execute("SELECT extname FROM pg_extension WHERE extname = 'hessra_pg'")
-                result = cur.fetchone()
-                if not result:
-                    print("ERROR: hessra_pg extension is not installed!")
-                    return
-                print("✓ Extension hessra_pg is installed")
+                # Check if the extension is installed
+                cur.execute("SELECT extname FROM pg_extension WHERE extname = 'hessra_authz'")
+                if cur.fetchone() is None:
+                    print("ERROR: hessra_authz extension is not installed!")
+                    sys.exit(1)
+                print("✓ Extension hessra_authz is installed")
                 
                 # Check if the verify_hessra_service_chain function exists
                 cur.execute("""

@@ -3,7 +3,7 @@ CREATE DATABASE hessra_test;
 \c hessra_test
 
 -- Create extension (make sure it's installed)
-CREATE EXTENSION hessra_pg;
+CREATE EXTENSION hessra_authz;
 
 -- Create tables for test data
 CREATE TABLE resources (

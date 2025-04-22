@@ -46,7 +46,7 @@ Returns: `boolean` indicating whether the token is valid for the service chain.
 3. Create extension in your database:
 
 ```sql
-CREATE EXTENSION hessra_pg;
+CREATE EXTENSION hessra_authz;
 ```
 
 ## Configuration

@@ -8,6 +8,7 @@ import psycopg2
 import pytest
 from typing import Dict, List, Any
 from dataclasses import dataclass
+import sys
 
 # Configuration
 DB_HOST = os.environ.get("DB_HOST", "localhost")
@@ -65,13 +66,12 @@ def test_direct_token_verification():
         # First, check if the extension is working
         with conn.cursor() as cur:
             try:
-                # Check that the extension is properly installed
-                cur.execute("SELECT extname FROM pg_extension WHERE extname = 'hessra_pg'")
-                result = cur.fetchone()
-                if not result:
-                    print("ERROR: hessra_pg extension is not installed!")
-                    return
-                print("✓ Extension hessra_pg is installed")
+                # Check if the extension is installed
+                cur.execute("SELECT extname FROM pg_extension WHERE extname = 'hessra_authz'")
+                if cur.fetchone() is None:
+                    print("ERROR: hessra_authz extension is not installed!")
+                    sys.exit(1)
+                print("✓ Extension hessra_authz is installed")
                 
                 # Test key loading by calling the function with dummy values
                 # If key loading fails, this will throw an error

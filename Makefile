@@ -1,5 +1,5 @@
-EXTENSION = hessra_pg
-MODULES = hessra_pg
+EXTENSION = hessra_authz
+MODULES = hessra_authz
 PG_CONFIG = pg_config
 PGXS := $(shell $(PG_CONFIG) --pgxs)
 

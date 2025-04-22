@@ -83,10 +83,10 @@ RUN apt-get update && \
 
 # Copy build artifacts from the plugin-builder stage
 # The .so file is named based on the MODULES variable in the Makefile
-COPY --from=plugin-builder /build/hessra_pg.so /usr/lib/postgresql/${PG_MAJOR}/lib/
+COPY --from=plugin-builder /build/hessra_authz.so /usr/lib/postgresql/${PG_MAJOR}/lib/
 COPY --from=plugin-builder /build/libhessra_ffi.so /usr/lib/
-COPY --from=plugin-builder /build/hessra_pg.control /usr/share/postgresql/${PG_MAJOR}/extension/
-COPY --from=plugin-builder /build/hessra_pg--0.1.0.sql /usr/share/postgresql/${PG_MAJOR}/extension/
+COPY --from=plugin-builder /build/hessra_authz.control /usr/share/postgresql/${PG_MAJOR}/extension/
+COPY --from=plugin-builder /build/hessra_authz--0.1.0.sql /usr/share/postgresql/${PG_MAJOR}/extension/
 
 # Create a wrapper script for postgres to preload the library
 RUN echo '#!/bin/bash\nexport LD_PRELOAD=/usr/lib/libhessra_ffi.so\nexec "$@"' > /usr/local/bin/postgres-wrapper && \
