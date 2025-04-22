@@ -7,7 +7,7 @@ services:
       context: .
       dockerfile: Dockerfile
       args:
-        PG_MAJOR: 15 # Ensure this matches the ARG in Dockerfile if changed
+        PG_MAJOR: 17 # Ensure this matches the ARG in Dockerfile if changed
     image: postgres-plugin-hessra:latest # Tag for the built image
     container_name: postgres-hessra
     environment:

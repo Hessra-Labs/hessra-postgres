@@ -1,4 +1,4 @@
 psycopg2-binary==2.9.9
-pytest==7.4.0
-pytest-postgresql==5.0.0
+pytest==8.3.5
+pytest-postgresql==7.0.1
 python-dotenv==1.0.0 

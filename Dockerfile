@@ -1,5 +1,5 @@
 # Use ARG to easily change the Postgres version
-ARG PG_MAJOR=15
+ARG PG_MAJOR=17
 ARG DEBIAN_FRONTEND=noninteractive
 
 # ---- FFI Artifact Builder Stage ----
