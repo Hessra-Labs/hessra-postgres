@@ -87,6 +87,26 @@ def test_service_chain_verification():
                     return
                 print("✓ verify_hessra_service_chain function exists")
                 
+                # Check if the tables exist and have the expected data
+                cur.execute("SELECT COUNT(*) FROM hessra_public_keys")
+                key_count = cur.fetchone()[0]
+                print(f"✓ hessra_public_keys table exists with {key_count} records")
+                
+                cur.execute("SELECT COUNT(*) FROM hessra_service_chains")
+                chain_count = cur.fetchone()[0]
+                print(f"✓ hessra_service_chains table exists with {chain_count} records")
+                
+                # Check if the new function exists
+                cur.execute("""
+                    SELECT routine_name 
+                    FROM information_schema.routines 
+                    WHERE routine_name = 'verify_hessra_service_chain_by_name' 
+                    AND routine_schema = 'public'
+                """)
+                if not cur.fetchone():
+                    print("ERROR: verify_hessra_service_chain_by_name function not found!")
+                    return
+                print("✓ verify_hessra_service_chain_by_name function exists")
             except Exception as e:
                 print(f"ERROR during extension check: {e}")
                 return
@@ -113,58 +133,119 @@ def test_service_chain_verification():
                     print(f"Basic Verification Result: {result}")
                     continue
                 
-                # For service chain tokens, test with each component
-                # Convert service_nodes to JSON for the function
-                service_nodes_json = json.dumps(token.service_nodes)
+                # For service chain tokens, test with the database table approach
                 
                 # First, test with the final component (should succeed if chain is complete)
                 component = "order_service"  # The final component in our chain
                 
-                print(f"Testing with component: {component}")
+                print(f"Testing with component (using DB tables): {component}")
+                cur.execute(
+                    "SELECT verify_hessra_service_chain_by_name(%s, %s, %s, %s)",
+                    (token.token, token.subject, token.resource, component)
+                )
+                result = cur.fetchone()[0]
+                print(f"Service Chain Verification Result (using DB tables): {result}")
+                expected = len(token.service_nodes) >= 3  # Should succeed only if all 3 nodes are in chain
+                
+                if result != expected:
+                    print(f"‼️ SERVICE CHAIN VERIFICATION (using DB tables) FAILED: Expected {expected}, got {result}")
+                    
+                # For comparison, also test with the original method
+                service_nodes_json = json.dumps({"service_nodes": token.service_nodes})
+                
+                print(f"Testing with component (using direct JSON): {component}")
                 cur.execute(
                     "SELECT verify_hessra_service_chain(%s, %s, %s, %s, %s)",
                     (token.token, token.subject, token.resource, service_nodes_json, component)
                 )
-                result = cur.fetchone()[0]
-                print(f"Service Chain Verification Result: {result}")
-                expected = len(token.service_nodes) >= 3  # Should succeed only if all 3 nodes are in chain
+                direct_result = cur.fetchone()[0]
+                print(f"Service Chain Verification Result (using direct JSON): {direct_result}")
                 
-                if result != expected:
-                    print(f"‼️ SERVICE CHAIN VERIFICATION FAILED: Expected {expected}, got {result}")
-                    
-                # Now test with earlier components in the chain
+                if result != direct_result:
+                    print(f"‼️ DISCREPANCY BETWEEN METHODS: DB tables result: {result}, Direct JSON result: {direct_result}")
+                
+                # Now test with earlier components in the chain using the DB tables approach
                 if len(token.service_nodes) > 0:
                     # Test with auth_service (should always succeed if present in chain)
                     component = "auth_service"
-                    print(f"Testing with component: {component}")
+                    print(f"Testing with component (using DB tables): {component}")
                     cur.execute(
-                        "SELECT verify_hessra_service_chain(%s, %s, %s, %s, %s)",
-                        (token.token, token.subject, token.resource, service_nodes_json, component)
+                        "SELECT verify_hessra_service_chain_by_name(%s, %s, %s, %s)",
+                        (token.token, token.subject, token.resource, component)
                     )
                     result = cur.fetchone()[0]
-                    print(f"Service Chain Verification for {component} Result: {result}")
+                    print(f"Service Chain Verification for {component} Result (using DB tables): {result}")
                     
                     # Test with payment_service (should succeed if has at least 2 nodes)
                     if len(token.service_nodes) > 1:
                         component = "payment_service"
-                        print(f"Testing with component: {component}")
+                        print(f"Testing with component (using DB tables): {component}")
                         cur.execute(
-                            "SELECT verify_hessra_service_chain(%s, %s, %s, %s, %s)",
-                            (token.token, token.subject, token.resource, service_nodes_json, component)
+                            "SELECT verify_hessra_service_chain_by_name(%s, %s, %s, %s)",
+                            (token.token, token.subject, token.resource, component)
                         )
                         result = cur.fetchone()[0]
-                        print(f"Service Chain Verification for {component} Result: {result}")
+                        print(f"Service Chain Verification for {component} Result (using DB tables): {result}")
                 
                 # Test with non-existent component (should fail)
                 component = "nonexistent_service"
-                print(f"Testing with non-existent component: {component}")
+                print(f"Testing with non-existent component (using DB tables): {component}")
                 cur.execute(
-                    "SELECT verify_hessra_service_chain(%s, %s, %s, %s, %s)",
-                    (token.token, token.subject, token.resource, service_nodes_json, component)
+                    "SELECT verify_hessra_service_chain_by_name(%s, %s, %s, %s)",
+                    (token.token, token.subject, token.resource, component)
                 )
                 result = cur.fetchone()[0]
-                print(f"Service Chain Verification for non-existent component Result: {result}")
+                print(f"Service Chain Verification for non-existent component Result (using DB tables): {result}")
                 assert result == False, f"Verification with non-existent component should fail"
+                
+                # Test the new function that uses the DB tables
+                print("\nTesting access_service_with_chain_from_db function:")
+                component = "order_service"
+                try:
+                    cur.execute(
+                        "SELECT * FROM access_service_with_chain_from_db(%s, %s, %s, %s)",
+                        (token.token, token.subject, token.resource, component)
+                    )
+                    service_result = cur.fetchone()
+                    if service_result:
+                        authorized = service_result[4]  # authorized is the 5th column
+                        chain_verified = service_result[5]  # chain_verified is the 6th column
+                        print(f"Service access result: authorized={authorized}, chain_verified={chain_verified}")
+                    else:
+                        print(f"Service not found: {token.resource}")
+                except Exception as e:
+                    print(f"Error testing access_service_with_chain_from_db: {e}")
+    finally:
+        conn.close()
+
+def test_database_configuration():
+    """Test that the database configuration is correctly set up"""
+    conn = get_db_connection()
+    
+    try:
+        with conn.cursor() as cur:
+            # Check the public keys table
+            cur.execute("SELECT key_name, public_key, is_default FROM hessra_public_keys")
+            rows = cur.fetchall()
+            print("\n===== Public Keys in Database =====")
+            for row in rows:
+                key_name, public_key, is_default = row
+                print(f"Key: {key_name}, Public Key: {public_key[:30]}..., Default: {is_default}")
+            
+            # Check the service chains table
+            cur.execute("SELECT service_name, service_chain FROM hessra_service_chains")
+            rows = cur.fetchall()
+            print("\n===== Service Chains in Database =====")
+            for row in rows:
+                service_name, service_chain = row
+                # Parse the JSON to get the number of nodes
+                chain_data = json.loads(service_chain) if isinstance(service_chain, str) else service_chain
+                node_count = len(chain_data.get("service_nodes", []))
+                print(f"Service: {service_name}, Chain Nodes: {node_count}")
+                
+                # Print each node in the chain
+                for i, node in enumerate(chain_data.get("service_nodes", []), 1):
+                    print(f"  Node {i}: {node.get('component')}, Key: {node.get('public_key')[:20]}...")
     finally:
         conn.close()
 
@@ -173,6 +254,7 @@ if __name__ == "__main__":
     
     # Run the tests
     try:
+        test_database_configuration()
         test_service_chain_verification()
         print("\nService chain tests completed - check output for failures.")
     except Exception as e:

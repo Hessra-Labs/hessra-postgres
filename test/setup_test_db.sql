@@ -5,6 +5,15 @@ CREATE DATABASE hessra_test;
 -- Create extension (make sure it's installed)
 CREATE EXTENSION hessra_authz;
 
+-- Verify extension is successfully installed (but don't try to fix anything if it's not)
+DO $$
+BEGIN
+    -- Check if the extension is installed
+    IF NOT EXISTS (SELECT 1 FROM pg_extension WHERE extname = 'hessra_authz') THEN
+        RAISE WARNING 'Extension hessra_authz does not appear to be installed correctly.';
+    END IF;
+END $$;
+
 -- Create tables for test data
 CREATE TABLE resources (
     id SERIAL PRIMARY KEY,

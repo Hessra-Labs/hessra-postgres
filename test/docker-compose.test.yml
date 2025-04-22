@@ -16,6 +16,10 @@ services:
       - ../hessra_key.pem:/etc/postgresql/hessra_key.pem:ro
       - ./setup_test_db.sql:/docker-entrypoint-initdb.d/1-setup_test_db.sql:ro
       - ./setup_service_chain_test.sql:/docker-entrypoint-initdb.d/2-setup_service_chain_test.sql:ro
+      - ./smoke_test.sql:/app/smoke_test.sql:ro
+      - ./import_service_chain_config.sql:/app/import_service_chain_config.sql:ro
+      - ./verify_service_chain_example.sql:/app/verify_service_chain_example.sql:ro
+      - ./order_service_chain.json:/app/order_service_chain.json:ro
       - postgres_test_data:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres"]
