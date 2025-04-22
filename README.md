@@ -6,8 +6,8 @@ https://www.hessra.net/ | hello@hessra.net
 
 ## Features
 
-- Token verification as a PostgreSQL function
-- Service Chain token verification for multi-service authentication flows
+- Local biscuit-based token verification as a PostgreSQL function
+- Service Chain token verification for multi-service authorization
 - Simple API for integrating with your PostgreSQL applications
 - Efficient verification using Rust-based FFI library
 
@@ -34,7 +34,7 @@ SELECT verify_hessra_service_chain(token, subject, resource, service_nodes_json,
 - `token`: The Hessra token string
 - `subject`: The subject (identity) attempting access
 - `resource`: The resource being accessed
-- `service_nodes_json`: JSON array of service nodes the token must have been attenuated by
+- `service_nodes_json`: JSON array of service nodes the token must have 3rd party blocks added by
 - `component`: The current component/service making the verification
 
 Returns: `boolean` indicating whether the token is valid for the service chain.

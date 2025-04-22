@@ -1,5 +1,5 @@
 # postgres-plugin extension control file
-comment = 'Postgres extension for Hessra authorization using Rust FFI'
+comment = 'Postgres Authorization with Local Biscuit Verification — by Hessra'
 default_version = '0.1.0'
 module_pathname = '$libdir/hessra_authz'
-relocatable = true 
+relocatable = true
